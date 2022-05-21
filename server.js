@@ -4,6 +4,7 @@ const app = express();
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 const cors = require("cors")
+const { config } = require('dotenv')
 config()
 
 app.use(express.static(path.join(__dirname, 'public')))
