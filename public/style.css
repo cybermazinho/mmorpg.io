@@ -13,6 +13,7 @@ body{
     background-repeat: no-repeat;
     width: 531px;
     height: 469px;
+    margin-bottom: 20px;
 }
 .player{
     display: flex;

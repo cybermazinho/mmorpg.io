@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamer</title>
+    <title>Pokémon.io</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js" integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="style.css">
@@ -18,78 +18,110 @@
    </section>
 
    <script type="text/javascript">
-    
-    let socket = io('https://mmorpgio.herokuapp.com/')
+
     const button = document.querySelector(".button")
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
-    let dataBase = []
 
-    button.addEventListener('click', function(){
-        localStorage.clear()
-        localStorage.setItem('nick', input.value)
-        socket.emit('login', {name: input.value, x: 255, y:20})
-    })
+    let socket = io('http://localhost:3000/')
 
     socket.on("synchronize", data => {
-        dataBase = data
-        player()
+        render(data)
+    })
+    
+    socket.on("login", data => {
+        newPlayer(data)
     })
 
+
     function player(){
-        world.innerHTML = "";
-        dataBase.forEach(player => {
-            const {name, x, y} = player
-            const div = document.createElement("div")
-            div.className = "player";
-            div.style.margin = `${y}px ${x}px`;
-            const namePlayer = document.createElement("p")
-            namePlayer.innerText = name;
-            const sprite = document.createElement("img")
-            sprite.src = "../img/sprite.png"
-            div.appendChild(namePlayer)
-            div.appendChild(sprite)
-            world.appendChild(div)
-        });
+        const name = localStorage.getItem('name')
+        const x = localStorage.getItem('x')
+        const y = localStorage.getItem('y')
+        return {name, x, y}
     }
 
-    function updatePlayer(name, valueX, valueY){
-        let newDataBase = dataBase.filter(player => player.name !== name)
-        newDataBase.push({name, x:valueX, y:valueY})
-        socket.emit('update', newDataBase)
+   
+    function login(){
+        localStorage.setItem('name', input.value)
+        localStorage.setItem('x', 255)
+        localStorage.setItem('y', 20)
+        socket.emit('create', {name: input.value, x:255, y:20})
+        newPlayer({name: input.value, x:255, y:20})
+        input.value = ""
     }
 
-    function motion(evt){
-        const nick = localStorage.getItem("nick");
-        const player = dataBase.find(player => player.name === nick)
-        const {name, x, y} = player
+    button.addEventListener('click', login)
 
-        let valueX = x
-        let valueY = y
 
-        if(evt.key === "ArrowLeft"){
-        valueX -= 10;
+    function newPlayer(data){
+      const {name, x, y} = data
+      const div = document.createElement("div")
+      div.classList.add("player", name)
+      div.style.margin = `${y}px ${x}px`
+      const namePlayer = document.createElement("p")
+      namePlayer.innerText = name;
+      const sprite = document.createElement("img")
+      sprite.src = "../img/sprite.png"
+      div.appendChild(namePlayer)
+      div.appendChild(sprite)
+      world.appendChild(div)
+  }
+
+
+    function remove(name){
+        const sprite =document.querySelector(`.${name}`)
+        sprite.remove()
+    }  
+  
+  
+  function render(data){
+        const {name, x, y} = data
+        remove(name)
+        const div = document.createElement("div")
+        div.classList.add("player", name)
+        div.style.margin = `${y}px ${x}px`
+        const namePlayer = document.createElement("p")
+        namePlayer.innerText = name;
+        const sprite = document.createElement("img")
+        sprite.src = "../img/sprite.png"
+        div.appendChild(namePlayer)
+        div.appendChild(sprite)
+        world.appendChild(div)
+    }
+
+
+
+    function motion(key){
+        const data = player()
+        const {name, x, y} = data
+
+        let pX = JSON.parse(x)
+        let pY = JSON.parse(y)
+
+        if(key === "ArrowUp"){
+            pY -= 20;
         }
-        if(evt.key === "ArrowRight"){
-        valueX += 10;
+        if(key === "ArrowDown"){
+            pY += 20;
         }
-        if(evt.key === "ArrowUp"){
-        valueY -= 10;
+        if(key === "ArrowLeft"){
+            pX -= 20;
         }
-        if(evt.key === "ArrowDown"){
-        valueY += 10;
+        if(key === "ArrowRight"){
+            pX += 20;
         }
 
-        updatePlayer(name, valueX, valueY)
+        render({name, x:pX, y:pY})
+        socket.emit("update", {name, x:pX, y:pY})
+        localStorage.setItem('x', pX)
+        localStorage.setItem('y', pY)
     }
 
     document.body.addEventListener("keydown", function(evt){
-        const motions = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]
-        motions.forEach((element, index) => {
-            if(evt.key === motions[index]){
-                motion(evt)
-            }
-        });
+        if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
+            motion(evt.key)
+        }
     });
 
    </script>

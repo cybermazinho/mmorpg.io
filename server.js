@@ -16,20 +16,12 @@ app.use("/", (req, res) => {
     res.render('index.html')
 })
 
-let dataBase = []
-
 io.on('connection', socket => {
-    socket.emit("synchronize", dataBase)
-    socket.broadcast.emit("synchronize", dataBase)
-    socket.on("login", data => {
-        dataBase.push(data)
-        socket.emit("synchronize", dataBase)
-        socket.broadcast.emit("synchronize", dataBase)
+    socket.on("create", data => {
+        socket.broadcast.emit("login", data)
     })
     socket.on("update", data => {
-        dataBase = data;
-        socket.emit("synchronize", dataBase)
-        socket.broadcast.emit("synchronize", dataBase)
+        socket.broadcast.emit("synchronize", data)
     })
 })
 
