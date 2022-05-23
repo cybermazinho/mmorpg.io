@@ -23,7 +23,7 @@
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
 
-    let socket = io('http://localhost:3000/')
+    let socket = io('https://mmorpgio.herokuapp.com/')
 
     socket.on("synchronize", data => {
         render(data)
