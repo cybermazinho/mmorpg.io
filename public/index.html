@@ -10,74 +10,89 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  
-   <section class="world"></section>
+   <section class="menu">
+ 
+    <div class="online">
+        <div class="people"></div>
+    </div>
+        <div class="world"></div>
+        <div class="chat">
+            <div class="board"></div>
+                <div class="inputs">
+                    <input type="text" placeholder="/join name">
+                    <button>Enviar</button>
+             </div>
+        </div>
+   </section>
    <section class="login">
     <input type="text" placeholder="Nick" class="input">
     <button class="button">Go</button>
    </section>
 
-   <script type="text/javascript">
+   <script  type="module">
 
     const button = document.querySelector(".button")
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
+    const local = document.querySelector(".people")
 
-    let socket = io('https://mmorpgio.herokuapp.com/')
+    export let socket = io('http://localhost:3000/')
+
+    console.log(socket.teste)
 
     socket.on("synchronize", data => {
         render(data)
     })
     
     socket.on("login", data => {
-        newPlayer(data)
+        render(data)
+        peopleLogin(data.name)
     })
 
-
-    function player(){
+    socket.on("map", () => {
         const name = localStorage.getItem('name')
         const x = localStorage.getItem('x')
         const y = localStorage.getItem('y')
-        return {name, x, y}
+        name && render({name, x, y})
+        name && socket.emit('data', {name, x, y})
+        name && peopleLogin(name)
+    })
+
+    function peopleLogin(names){
+       const name = document.createElement("p")
+       name.innerText = names ? names : localStorage.getItem('name')
+       const life  = document.createElement("div")
+       const lifered  = document.createElement("div")
+       const section = document.createElement("section")
+       section.className = "components"
+       life.className =  "life"
+       lifered.className =  "lifeRed"
+       section.appendChild(name)
+       life.appendChild(lifered)
+       section.appendChild(life)
+       local.appendChild(section)
     }
 
-   
     function login(){
         localStorage.setItem('name', input.value)
         localStorage.setItem('x', 255)
         localStorage.setItem('y', 20)
         socket.emit('create', {name: input.value, x:255, y:20})
-        newPlayer({name: input.value, x:255, y:20})
+        render({name: input.value, x:255, y:20})
         input.value = ""
+        peopleLogin()
     }
 
     button.addEventListener('click', login)
-
-
-    function newPlayer(data){
-      const {name, x, y} = data
-      const div = document.createElement("div")
-      div.classList.add("player", name)
-      div.style.margin = `${y}px ${x}px`
-      const namePlayer = document.createElement("p")
-      namePlayer.innerText = name;
-      const sprite = document.createElement("img")
-      sprite.src = "../img/sprite.png"
-      div.appendChild(namePlayer)
-      div.appendChild(sprite)
-      world.appendChild(div)
-  }
-
-
-    function remove(name){
-        const sprite =document.querySelector(`.${name}`)
-        sprite.remove()
-    }  
-  
-  
-  function render(data){
+   
+    function render(data){
         const {name, x, y} = data
-        remove(name)
+
+        try{
+            const sprite = document.querySelector(`.${name}`)
+            sprite.remove()
+        }catch{console.log("Eu tentei ;-;")}
+
         const div = document.createElement("div")
         div.classList.add("player", name)
         div.style.margin = `${y}px ${x}px`
@@ -90,38 +105,38 @@
         world.appendChild(div)
     }
 
-
-
     function motion(key){
-        const data = player()
-        const {name, x, y} = data
+        const name = localStorage.getItem('name')
+        const sX = localStorage.getItem('x')
+        const sY = localStorage.getItem('y')
 
-        let pX = JSON.parse(x)
-        let pY = JSON.parse(y)
+        let x = JSON.parse(sX)
+        let y = JSON.parse(sY)
 
         if(key === "ArrowUp"){
-            pY -= 20;
+            y -= 20;
         }
         if(key === "ArrowDown"){
-            pY += 20;
+            y += 20;
         }
         if(key === "ArrowLeft"){
-            pX -= 20;
+            x -= 20;
         }
         if(key === "ArrowRight"){
-            pX += 20;
+            x += 20;
         }
 
-        render({name, x:pX, y:pY})
-        socket.emit("update", {name, x:pX, y:pY})
-        localStorage.setItem('x', pX)
-        localStorage.setItem('y', pY)
+        render({name, x, y})
+        socket.emit("data", {name, x, y})
+        localStorage.setItem('x', x)
+        localStorage.setItem('y', y)
     }
 
     document.body.addEventListener("keydown", function(evt){
-        if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
+        if(localStorage.getItem('name')){
+            if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
             motion(evt.key)
-        }
+        }}
     });
 
    </script>

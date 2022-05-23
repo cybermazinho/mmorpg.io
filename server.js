@@ -16,12 +16,16 @@ app.use("/", (req, res) => {
     res.render('index.html')
 })
 
+
 io.on('connection', socket => {
+    socket.emit("map")
+    socket.broadcast.emit("map")
+
+    socket.on('data', data => {
+        socket.broadcast.emit("synchronize", data)
+    })
     socket.on("create", data => {
         socket.broadcast.emit("login", data)
-    })
-    socket.on("update", data => {
-        socket.broadcast.emit("synchronize", data)
     })
 })
 
