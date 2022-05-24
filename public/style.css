@@ -1,3 +1,32 @@
+*{
+    box-sizing: border-box;
+}
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    font-family: "Montserrat", sans-serif;
+}
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
 html{
     background-color: rgb(27, 27, 27);
 }
@@ -11,7 +40,7 @@ main{
     display: flex;
 }
 .status{
-    color: rgb(162, 80, 255);
+    margin-top: 20px;
     width: 200px;
     height: 500px;
     border: 1px solid #fff;
@@ -33,6 +62,7 @@ main{
     margin: 5px 0;
     border: 1px solid #fff;
     background-color: rgb(57, 61, 61);
+    color: rgb(162, 80, 255);
 }
 .life{
     border: 1px solid #fff;
@@ -70,12 +100,24 @@ main{
     height: 50px;
 }
 .chat{
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 300px;
+    width: 302px;
     height: 500px;
     border: 1px solid #fff;
+}
+.scroll{
+    overflow-y: scroll;
+    width: 300px;
+    height: 500px;
+}
+.chat_player{
+    display: flex;
+    margin-left: 5px;
+    margin-bottom: 10px;
+    color: #fff;
 }
 form{
     display: flex;
@@ -83,7 +125,7 @@ form{
     justify-content: space-evenly;
 }
 form input{
-    width: 233px;
+    width: 242px;
     height: 20px;
     color: #fff;
     background-color: rgb(61, 58, 58);
@@ -92,7 +134,7 @@ form input{
 form button {
     transition: 0.4s;
     width: 55px;
-    height: 22px;
+    height: 20px;
     color: #fff;
     background-color: rgb(61, 58, 58);
     border: none;

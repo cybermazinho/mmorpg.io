@@ -17,7 +17,7 @@
     </section>
         <section class="world"></section>
         <section class="chat">
-            <div class="messages"></div>
+            <div class="scroll"><div class="messages"></div></div>
                 <form>
                     <input class="input" type="text" placeholder="/join name">
                     <button class="button">Enviar</button>
@@ -26,12 +26,14 @@
     </main>
 
    <script>
+
+    localStorage.clear()
+
     const button = document.querySelector(".button")
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
     const cards = document.querySelector(".cards")
-
-    localStorage.clear()
+    const messages = document.querySelector(".messages")
 
     let socket = io('http://localhost:3000/')
 
@@ -51,6 +53,20 @@
         name && socket.emit('move_player', {name, x, y})
     })
 
+    socket.on('messages', data =>{
+         chat(data)
+    })
+
+    function login(name){
+        localStorage.setItem('name', name)
+        localStorage.setItem('x', 255)
+        localStorage.setItem('y', 20)
+        socket.emit('created_player', {name: name, x:255, y:20})
+        render({name: name, x:255, y:20})
+        card(name)
+        input.value = ""
+    }
+
     function card(data){
        cards.innerHTML = ""
        const name = document.createElement("p")
@@ -66,22 +82,34 @@
        cards.appendChild(section)
     }
 
-    function login(name){
-        localStorage.setItem('name', name)
-        localStorage.setItem('x', 255)
-        localStorage.setItem('y', 20)
-        socket.emit('created_player', {name: name, x:255, y:20})
-        render({name: name, x:255, y:20})
-        card(name)
-        input.value = ""
+    function chat(data){
+        messages.innerHTML = ""
+        data.forEach(player => {
+            const div = document.createElement("div")
+            const name = document.createElement("p");
+            const data = document.createElement("p")
+            div.className = "chat_player"
+            name.innerText = `${player.name}:`
+            data.innerText = player.message
+            div.appendChild(name)
+            div.appendChild(data)
+            messages.appendChild(div)
+        });
     }
 
     function commands(evt){
+
         evt.preventDefault()
-        const command = input.value.slice(0, 5)
-        const run = input.value.slice(6, input.value.length)
-        if(command === "/join"){
-            login(run)
+        const command = input.value.split(" ")
+
+        if(command[0] === "/join"){
+            login(command[1])
+        }
+        else if(command[0] === "/reload"){
+            location.reload()
+        }
+        else{
+            localStorage.getItem("name") && socket.emit('message', {name: localStorage.getItem("name"), message: input.value})
         }
     }
 
@@ -108,7 +136,6 @@
     }
 
     function motion(key){
-        const name = localStorage.getItem('name')
         let x = JSON.parse(localStorage.getItem('x'))
         let y = JSON.parse(localStorage.getItem('y'))
 
@@ -128,12 +155,12 @@
         localStorage.setItem('x', x)
         localStorage.setItem('y', y)
 
-        render({name, x, y})
-        socket.emit('move_player', {name, x, y})
+        render({name:localStorage.getItem("name"), x, y})
+        socket.emit('move_player', {name:localStorage.getItem("name"), x, y})
     }
 
     document.body.addEventListener("keydown", function(evt){
-        if(localStorage.getItem('name')){
+        if(localStorage.getItem("name")){
             if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
             motion(evt.key)
         }}
