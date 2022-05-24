@@ -7,99 +7,106 @@
     <title>Pokémon.io</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js" integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-   <section class="menu">
- 
-    <div class="online">
-        <div class="people"></div>
-    </div>
-        <div class="world"></div>
-        <div class="chat">
-            <div class="board"></div>
-                <div class="inputs">
-                    <input type="text" placeholder="/join name">
-                    <button>Enviar</button>
-             </div>
-        </div>
-   </section>
-   <section class="login">
-    <input type="text" placeholder="Nick" class="input">
-    <button class="button">Go</button>
-   </section>
 
-   <script  type="module">
+   <main class="menus">
+    <section class="status">
+        <div class="cards"></div>
+    </section>
+        <section class="world"></section>
+        <section class="chat">
+            <div class="messages"></div>
+                <form>
+                    <input class="input" type="text" placeholder="/join name">
+                    <button class="button" >Enviar</button>
+                </form>
+        </section>
+    </main>
+
+   <script>
 
     const button = document.querySelector(".button")
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
-    const local = document.querySelector(".people")
+    const cards = document.querySelector(".cards")
 
-    export let socket = io('http://localhost:3000/')
+    let socket = io('http://localhost:3000/')
 
-    console.log(socket.teste)
+    socket.on("login", data => {
+        render(data)
+        card(data.name)
+    })
 
     socket.on("synchronize", data => {
         render(data)
     })
-    
-    socket.on("login", data => {
-        render(data)
-        peopleLogin(data.name)
+
+    socket.on("clear", ()=>{
+        localStorage.clear()
     })
 
-    socket.on("map", () => {
+    socket.on("map_player", () => {
         const name = localStorage.getItem('name')
         const x = localStorage.getItem('x')
         const y = localStorage.getItem('y')
         name && render({name, x, y})
-        name && socket.emit('data', {name, x, y})
-        name && peopleLogin(name)
+        name && card(name)
+        name && socket.emit('move_player', {name, x, y})
     })
 
-    function peopleLogin(names){
+    function card(data){
        const name = document.createElement("p")
-       name.innerText = names ? names : localStorage.getItem('name')
        const life  = document.createElement("div")
-       const lifered  = document.createElement("div")
+       const dead  = document.createElement("div")
        const section = document.createElement("section")
-       section.className = "components"
+       name.innerText = data 
+       section.className = "player_status"
        life.className =  "life"
-       lifered.className =  "lifeRed"
        section.appendChild(name)
-       life.appendChild(lifered)
+       life.appendChild(dead)
        section.appendChild(life)
-       local.appendChild(section)
+       cards.appendChild(section)
     }
 
-    function login(){
-        localStorage.setItem('name', input.value)
+    function login(name){
+        localStorage.setItem('name', name)
         localStorage.setItem('x', 255)
         localStorage.setItem('y', 20)
-        socket.emit('create', {name: input.value, x:255, y:20})
-        render({name: input.value, x:255, y:20})
+        socket.emit('created_player', {name: name, x:255, y:20})
+        render({name: name, x:255, y:20})
+        card(name)
         input.value = ""
-        peopleLogin()
     }
 
-    button.addEventListener('click', login)
-   
+    function commands(command, run){
+        if(command === "/join"){
+            login(run)
+        }
+    }
+
+    button.addEventListener("click", function(evt){
+        evt.preventDefault()
+        const command = input.value.slice(0, 5)
+        const run = input.value.slice(6, input.value.length)
+        commands(command, run)
+    })
+
     function render(data){
         const {name, x, y} = data
-
         try{
             const sprite = document.querySelector(`.${name}`)
             sprite.remove()
-        }catch{console.log("Eu tentei ;-;")}
-
+        }
+        catch{}
         const div = document.createElement("div")
         div.classList.add("player", name)
         div.style.margin = `${y}px ${x}px`
         const namePlayer = document.createElement("p")
         namePlayer.innerText = name;
         const sprite = document.createElement("img")
-        sprite.src = "../img/sprite.png"
+        sprite.src = "./img/sprite.png"
         div.appendChild(namePlayer)
         div.appendChild(sprite)
         world.appendChild(div)
@@ -107,11 +114,8 @@
 
     function motion(key){
         const name = localStorage.getItem('name')
-        const sX = localStorage.getItem('x')
-        const sY = localStorage.getItem('y')
-
-        let x = JSON.parse(sX)
-        let y = JSON.parse(sY)
+        let x = JSON.parse(localStorage.getItem('x'))
+        let y = JSON.parse(localStorage.getItem('y'))
 
         if(key === "ArrowUp"){
             y -= 20;
@@ -127,9 +131,9 @@
         }
 
         render({name, x, y})
-        socket.emit("data", {name, x, y})
         localStorage.setItem('x', x)
         localStorage.setItem('y', y)
+        socket.emit("move_player", {name, x, y})
     }
 
     document.body.addEventListener("keydown", function(evt){
@@ -138,7 +142,6 @@
             motion(evt.key)
         }}
     });
-
    </script>
    
 </body>

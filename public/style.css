@@ -1,7 +1,4 @@
 html{
-    background-image: url("./img/background-ss.gif");
-    background-repeat: no-repeat;
-    background-size: cover;
     background-color: rgb(27, 27, 27);
 }
 body{
@@ -10,87 +7,53 @@ body{
     align-items: center;
     flex-direction: column;
 }
-.menu{
+main{
     display: flex;
 }
-.world{
-    display: flex;
-    background-image: url("./img/maps.png");
-    background-repeat: no-repeat;
-    width: 531px;
-    height: 469px;
-    margin: 30px;
-    border: 2px solid #fff;
-}
-.people{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.chat{
-    background-size: 300px 300px;
-    background-repeat: no-repeat;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 300px;
-    height: 500px;
-    border: 1px solid #fff;
-}
-.online{
-    color: green;
+.status{
+    color: rgb(162, 80, 255);
     width: 200px;
     height: 500px;
     border: 1px solid #fff;
     background-size: cover;
 }
+.cards{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.player_status{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 190px;
+    height: 80px;
+    margin: 5px 0;
+    border: 1px solid #fff;
+    background-color: rgb(57, 61, 61);
+}
 .life{
+    border: 1px solid #fff;
     margin-left: 10px;
     width: 100px;
     height: 10px;
     background-color: red;
 }
-.lifeRed{
+.life div{
     width: 90px;
     height: 10px;
     background-color: green;
 }
-.components{
+.world{
+    background-image: url("./img/maps.png");
+    background-repeat: no-repeat;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 100px;
-    height: 80px;
-    margin-bottom: 5px;
-}
-.inputs{
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-}
-.inputs input{
-    width: 233px;
-    height: 20px;
-    color: #fff;
-    background-color: rgb(61, 58, 58);
-    border: none;
-}
-.inputs button {
-    transition: 0.4s;
-    width: 55px;
-    height: 22px;
-    color: #fff;
-    background-color: rgb(61, 58, 58);
-    border: none;
-}
-.inputs button:hover{
-    transition: 0.4s;
-    background-color: rgb(0, 0, 0);
-}
-.board{
-    height: 300px;
+    width: 531px;
+    height: 469px;
+    margin: 30px;
+    border: 2px solid #fff;
 }
 .player{
     display: flex;
@@ -105,4 +68,36 @@ body{
 .player img{
     width: 50px;
     height: 50px;
+}
+.chat{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 300px;
+    height: 500px;
+    border: 1px solid #fff;
+}
+form{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+form input{
+    width: 233px;
+    height: 20px;
+    color: #fff;
+    background-color: rgb(61, 58, 58);
+    border: none;
+}
+form button {
+    transition: 0.4s;
+    width: 55px;
+    height: 22px;
+    color: #fff;
+    background-color: rgb(61, 58, 58);
+    border: none;
+}
+form button:hover{
+    transition: 0.4s;
+    background-color: rgb(0, 0, 0);
 }

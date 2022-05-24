@@ -18,15 +18,18 @@ app.use("/", (req, res) => {
 
 
 io.on('connection', socket => {
-    socket.emit("map")
-    socket.broadcast.emit("map")
 
-    socket.on('data', data => {
-        socket.broadcast.emit("synchronize", data)
-    })
-    socket.on("create", data => {
+    socket.emit("clear")
+    socket.emit("map_player")
+    socket.broadcast.emit("map_player")
+   
+    socket.on("created_player", data => {
         socket.broadcast.emit("login", data)
     })
+    socket.on('move_player', data => {
+        socket.broadcast.emit("synchronize", data)
+    })
+
 })
 
 const PORT = process.env.PORT || 3000
