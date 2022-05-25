@@ -13,10 +13,12 @@
 
    <main class="menus">
     <section class="status">
+        <h2>Pessoas online:</h2>
         <div class="cards"></div>
     </section>
         <section class="world"></section>
         <section class="chat">
+            <h2>Chat:</h2>
             <div class="scroll"><div class="messages"></div></div>
                 <form>
                     <input class="input" type="text" placeholder="/join name">
@@ -35,7 +37,7 @@
     const cards = document.querySelector(".cards")
     const messages = document.querySelector(".messages")
 
-    let socket = io('http://localhost:3000/')
+    let socket = io('https://mmorpgio.herokuapp.com/')
 
     socket.on('login', data => {
         render(data)
@@ -86,7 +88,7 @@
         messages.innerHTML = ""
         data.forEach(player => {
             const div = document.createElement("div")
-            const name = document.createElement("p");
+            const name = document.createElement("strong");
             const data = document.createElement("p")
             div.className = "chat_player"
             name.innerText = `${player.name}:`
@@ -98,8 +100,8 @@
     }
 
     function commands(evt){
-
         evt.preventDefault()
+
         const command = input.value.split(" ")
 
         if(command[0] === "/join"){
@@ -139,13 +141,13 @@
         let x = JSON.parse(localStorage.getItem('x'))
         let y = JSON.parse(localStorage.getItem('y'))
 
-        if(key === "ArrowUp" && y>-60){
+        if(key === "ArrowUp" && y>-40){
             y -= 20;
         }
-        if(key === "ArrowDown" && y<380){
+        if(key === "ArrowDown" && y<=400){
             y += 20;
         }
-        if(key === "ArrowLeft" && x>-5){
+        if(key === "ArrowLeft" && x>=-5){
             x -= 20;
         }
         if(key === "ArrowRight" && x<495){

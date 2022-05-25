@@ -38,6 +38,8 @@ io.on('connection', socket => {
         socket.emit('messages', messages)
         socket.broadcast.emit('messages', messages)
     })
+
+    console.log(socket)
     
 })
 
