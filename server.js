@@ -39,8 +39,10 @@ io.on('connection', socket => {
         socket.broadcast.emit('messages', messages)
     })
 
-    console.log(socket)
-    
+    socket.on("stop", data =>{
+        socket.broadcast.emit("stopando", data)
+    })
+
 })
 
 const PORT = process.env.PORT || 3000

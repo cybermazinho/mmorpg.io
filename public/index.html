@@ -11,6 +11,8 @@
 </head>
 <body>
 
+    <audio class="login" src="./music/login.mp3"></audio>
+
    <main class="menus">
     <section class="status">
         <h2>Pessoas online:</h2>
@@ -31,13 +33,16 @@
 
     localStorage.clear()
 
-    console.log("testando git")
-
     const button = document.querySelector(".button")
     const input = document.querySelector(".input")
     const world = document.querySelector(".world")
     const cards = document.querySelector(".cards")
     const messages = document.querySelector(".messages")
+
+    const songLogin = document.querySelector(".login")
+
+    let x = 1
+    let y = 1
 
     let socket = io('https://mmorpgio.herokuapp.com/')
 
@@ -48,6 +53,7 @@
 
     socket.on('synchronize', data => {
         render(data)
+        card(data.name)
     })
 
     socket.on('map_player', () => {
@@ -55,6 +61,8 @@
         const x = localStorage.getItem('x')
         const y = localStorage.getItem('y')
         name && socket.emit('move_player', {name, x, y})
+        name && card(name)
+        songLogin.play()
     })
 
     socket.on('messages', data =>{
@@ -68,17 +76,21 @@
         socket.emit('created_player', {name: name, x:255, y:20})
         render({name: name, x:255, y:20})
         card(name)
-        input.value = ""
+        songLogin.play()
     }
 
     function card(data){
-       cards.innerHTML = ""
+       try{
+            const card = document.querySelector(`.${data}Card`)
+            card.remove()
+       }
+       catch{}
        const name = document.createElement("p")
        const life  = document.createElement("div")
        const dead  = document.createElement("div")
        const section = document.createElement("section")
-       name.innerText = data 
-       section.className = "player_status"
+       section.classList.add("player_status", `${data}Card`)
+       name.innerText = data
        life.className =  "life"
        section.appendChild(name)
        life.appendChild(dead)
@@ -115,9 +127,30 @@
         else{
             localStorage.getItem("name") && socket.emit('message', {name: localStorage.getItem("name"), message: input.value})
         }
+        input.value = ""
     }
 
     button.addEventListener("click", commands)
+
+    function sprites(moveX, moveY){
+       if(moveX > x){
+            x = moveX
+            return "./img/char_run_left_anim.gif"
+        }else if(moveX < x){
+            x = moveX
+            return "./img/char_run_right_anim.gif"
+        }else if(moveY > y){
+            y = moveY
+            return "./img/char_run_down_anim.gif"
+        }else{
+            y = moveY
+            return "./img/char_run_up_anim.gif"
+        }
+        
+    }
+
+
+    console.log(sprites(2, 0))
 
     function render(data){
         const {name, x, y} = data
@@ -132,7 +165,8 @@
         const namePlayer = document.createElement("p")
         namePlayer.innerText = name;
         const sprite = document.createElement("img")
-        sprite.src = "./img/sprite.png"
+        sprite.className = `${name}Sprite`
+        sprite.src = sprites(x, y)
         div.appendChild(namePlayer)
         div.appendChild(sprite)
         world.appendChild(div)
@@ -144,18 +178,18 @@
         let y = JSON.parse(localStorage.getItem('y'))
 
         if(key === "ArrowUp" && y>-40){
-            y -= 20;
+            y -= 10;
         }
         if(key === "ArrowDown" && y<=400){
-            y += 20;
+            y += 10;
         }
         if(key === "ArrowLeft" && x>=-5){
-            x -= 20;
+            x -= 10;
         }
         if(key === "ArrowRight" && x<495){
-            x += 20;
+            x += 10;
         }
-
+        console.log(x, y)
         localStorage.setItem('x', x)
         localStorage.setItem('y', y)
 
@@ -163,12 +197,40 @@
         socket.emit('move_player', {name:localStorage.getItem("name"), x, y})
     }
 
+    socket.on("stopando", data => {
+        const {name, key} = data
+        stops(key, name)
+    })
+
+    function stops(key, name){
+        console.log(key)
+         const sprite = document.querySelector(`.${name}Sprite`)
+        if(key === "ArrowUp"){
+            sprite.src =  "./img/stop/char_idle_up_anim.gif"
+        }else if(key === "ArrowDown"){
+            sprite.src = "./img/stop/char_idle_down_anim.gif"
+        }else if(key === "ArrowLeft"){
+            sprite.src = "./img/stop/char_idle_right_anim.gif"
+        }else if(key === "ArrowRight"){
+            sprite.src = "./img/stop/char_idle_left_anim.gif"
+        }
+    }
+
     document.body.addEventListener("keydown", function(evt){
+      
         if(localStorage.getItem("name")){
             if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
             motion(evt.key)
         }}
     });
+
+    document.body.addEventListener("keyup", function(evt){
+        if(localStorage.getItem("name")){
+            if(evt.key === "ArrowUp" || evt.key === "ArrowDown" || evt.key === "ArrowLeft" || evt.key === "ArrowRight"){
+            stops(evt.key, localStorage.getItem("name"))
+            socket.emit("stop", {name: localStorage.getItem("name"), key: evt.key})
+        }}
+    })
 
    </script>
    
